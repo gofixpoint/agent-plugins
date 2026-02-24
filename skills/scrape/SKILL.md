@@ -67,6 +67,22 @@ Each trace line is JSON with these fields:
 5. Meaningful identifying text
 6. LLM-powered handle (last resort only)
 
+**Login detection**: After the initial navigation, use `browser_snapshot` to
+check for login screens. Look for password input fields, "Sign in" / "Log in"
+buttons, or similar authentication prompts in the accessibility tree.
+
+If a login screen is detected:
+
+1. **Pause** and tell the user: "A login wall was detected. Please log in
+   manually in the browser."
+2. **Ask the user to confirm** once they have finished logging in.
+3. After confirmation, **capture auth state** by calling `browser_run_code`
+   with the code: `JSON.stringify(await page.context().storageState())`.
+4. **Save** the result to `scratch/{slug}/auth-state.json`.
+5. **Record** an `auth` trace entry in `trace.jsonl`:
+   `{"action": "auth", "reason": "User completed manual login; captured storage state"}`
+6. Continue with normal navigation.
+
 **Short-circuiting loops**: If you find yourself repeating the same interaction
 pattern in a loop (e.g., clicking "next page" and extracting rows, scrolling and
 collecting items), you can short-circuit after a few iterations. The goal in
@@ -102,6 +118,7 @@ After completing Phase 1:
      - `scratch/{slug}/metadata.json`
      - `scratch/{slug}/trace.jsonl`
      - `scratch/{slug}/narrative.md`
+     - `scratch/{slug}/auth-state.json` (if login was required)
      - `scratch/{slug}/network-requests/` (and list files within)
 4. **Ask the user to confirm** before proceeding to Phase 2.
 
@@ -110,7 +127,8 @@ Once the user confirms:
 5. Create `{scraper-name}/traces/{slug}/`.
 6. Move all files from `scratch/{slug}/` into
    `{scraper-name}/traces/{slug}/` (including
-   `metadata.json`, `trace.jsonl`, `narrative.md`, and `network-requests/`).
+   `metadata.json`, `trace.jsonl`, `narrative.md`, `network-requests/`, and
+   `auth-state.json` if it exists).
 7. Remove the now-empty `scratch/{slug}/` directory.
 
 ## Phase 2: Deterministic Scraper Generation
@@ -153,6 +171,12 @@ Write the scraper in TypeScript. Requirements:
   load the page in a browser first to grab cookies or session tokens.
 - **File structure**: Use a single `index.ts` or split into multiple files based
   on complexity. Make your own judgment per scraper.
+- **Auth state**: If `auth-state.json` exists in the traces directory, the
+  scraper should restore the session. When using Playwright browser mode, pass
+  the state via `browser.newContext({ storageState: 'path/to/auth-state.json' })`.
+  When using direct HTTP/fetch requests, extract cookies from the saved state and
+  send them as a `Cookie` header. Note: auth state is ephemeral — the scraper
+  should warn if cookies appear expired or if a login redirect is detected.
 - **On failure**: The scraper should simply fail with an error if the site has
   changed in a breaking way. No auto-recovery.
 
@@ -175,6 +199,6 @@ If anything breaks during testing, iterate on the scraper code until it works.
 
 ## Important Notes
 
-- Auth is out of scope. Do not handle login flows or authenticated content.
+- The scraper supports authenticated content via manual user login during Phase 1, but does not automate login flows itself. If a login wall is detected, the agent pauses and asks the user to log in manually in the browser.
 - Every `/scrape` invocation starts fresh. Do not reuse traces from previous runs.
 - Use ultrathink for complex navigation decisions and scraper design.
