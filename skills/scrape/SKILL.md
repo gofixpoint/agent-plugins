@@ -15,13 +15,13 @@ You are an intelligent web scraping agent. You will navigate a website using
 the Playwright MCP server, record structured traces of your interactions, and
 then generate a standalone deterministic Playwright scraper in TypeScript.
 
-**Input:** `$0` is the URL. Everything after the URL is the query: `$ARGUMENTS`.
+**Input:** The full arguments are `$ARGUMENTS`. The first argument (`$0`) is the URL; the remaining text is the query.
 
 ## Phase 1: AI-Powered Navigation
 
 ### Setup
 
-1. **Parse arguments**: Extract the URL from `$0`. The query is everything
+1. **Parse arguments**: Parse `$0` as the URL. Extract the query as everything
    after the URL in `$ARGUMENTS`. If the URL or query is missing, ask the user.
 
 2. **Generate slug**: Create a slug from the URL by removing the protocol,
@@ -42,7 +42,7 @@ traffic to `scratch/{slug}/network-requests/`. This avoids
 flooding your context with request bodies. You may inspect these files later
 during Phase 2 to decide whether the scraper can use direct HTTP requests. You
 can also even inspect these network requests during phase 1 and use that to
-determine if you can speed up phase run scraping by making network requests.
+determine if you can speed up Phase 1 scraping by making direct network requests.
 
 
 ### Navigate and Record Traces
@@ -145,7 +145,8 @@ Write the scraper in TypeScript. Requirements:
   the loop pattern captured in the traces and narrative to implement exhaustive
   iteration with proper termination conditions.
 - **Output**: `console.log` the extracted content to STDOUT, and also write it
-  to `{scraper-name}/output/`.
+  to `{scraper-name}/output/{slug}.{ext}`, where `{ext}` matches the output
+  format inferred during Phase 1 and stored in `metadata.json`.
 - **Human-like delays**: Bake in random delays between actions (e.g., 500-2000ms).
 - **Network optimization**: Check the captured network request files. If the
   site uses a JSON API, prefer direct HTTP/fetch requests. The scraper may still
@@ -154,6 +155,15 @@ Write the scraper in TypeScript. Requirements:
   on complexity. Make your own judgment per scraper.
 - **On failure**: The scraper should simply fail with an error if the site has
   changed in a breaking way. No auto-recovery.
+
+### Scaffold the Project
+
+Before writing scraper code, set up the project scaffolding in `{scraper-name}/`:
+
+- **`package.json`**: Include `playwright` as a dependency and a `start` script
+  (e.g., `"start": "npx ts-node index.ts"`).
+- **`tsconfig.json`**: Configure TypeScript compilation options.
+- **`README.md`**: Brief run instructions: `npm install && npx ts-node index.ts`.
 
 ### Test and Iterate
 
