@@ -1,0 +1,10 @@
+{
+  "name": "fixpoint-scraper",
+  "version": "0.1.0",
+  "description": "AI-powered web scraper that navigates a site with Playwright MCP, records interaction traces, then generates a standalone deterministic Playwright scraper in TypeScript.",
+  "author": {
+    "name": "Fixpoint",
+    "url": "https://fixpoint.co"
+  },
+  "license": "Apache-2.0"
+}
