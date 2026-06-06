@@ -40,4 +40,4 @@ Add this plugin to your Claude Code configuration:
 
 ## License
 
-Apache-2.0
+MIT
