@@ -1,17 +1,19 @@
-# fixpoint-scraper
+# amika-scraper
 
 A Claude Code plugin that provides an AI-powered web scraping skill. It navigates a website using the Playwright MCP server, records structured interaction traces, then generates a standalone deterministic Playwright scraper in TypeScript.
+
+Made with love by [Amika](https://github.com/gofixpoint/amika). Join us on [Discord](https://discord.gg/xDXk4KjGWg) to chat about software factories and agentic software.
 
 ## Usage
 
 ```
-/fixpoint-scraper:scrape <url> <query>
+/amika-scraper:scrape <url> <query>
 ```
 
 For example:
 
 ```
-/fixpoint-scraper:scrape https://example.com/products Extract all product names and prices
+/amika-scraper:scrape https://example.com/products Extract all product names and prices
 ```
 
 ## How it works
