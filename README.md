@@ -21,6 +21,7 @@ Skills are invoked as `/amika-scraper:<skill>`, using the plugin name from [`.cl
 | Skill | What it does | Requires |
 | --- | --- | --- |
 | [`scrape`](skills/scrape/SKILL.md) | Navigates a site with Playwright, records the interactions, then generates a standalone deterministic Playwright scraper in TypeScript. | [Playwright MCP server](https://github.com/anthropics/mcp-playwright) |
+| [`video-gen`](skills/video-gen/SKILL.md) | Makes marketing graphics and short looping videos (PNG stills, MP4) for posts, launches, and decks. Today it has one style: isometric technical diagrams. | See the style's [`GUIDE.md`](skills/video-gen/isometric/GUIDE.md) |
 
 ### scrape
 
